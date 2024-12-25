@@ -27,7 +27,7 @@ def verify_token(token: str):
 # Function to calculate multipliers without house edge
 def calculate_multipliers():
     multipliers = [0, 0.5, 1, 1.5, 2, 3, 5, 10]
-    probabilities = [0.10, 0.40, 0.173, 0.25, 0.05, 0.025, 0.001, 0.001]  # Original probabilities
+    probabilities = [0.22, 0.313, 0.1, 0.20, 0.14, 0.025, 0.001, 0.001]  # Original probabilities
 
     # Normalize probabilities to sum to 1
     total = sum(probabilities)
