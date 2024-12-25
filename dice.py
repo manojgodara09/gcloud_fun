@@ -23,12 +23,19 @@ def verify_token(token: str):
 # Request Model
 class DiceGameRequest(BaseModel):
     bet_amount: float
-    roll_over: float
+    roll_over: int
     token: str
 
 # Function to calculate dice roll and result
 def roll_dice():
     return random.choices(range(1, 21), weights=[0.08, 0.07, 0.06, 0.06, 0.06, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.04, 0.04, 0.04, 0.03, 0.02])[0]
+
+# Function to calculate multiplier based on roll-over value
+def calculate_multiplier(roll_over):
+    if roll_over < 2 or roll_over > 19:
+        raise HTTPException(status_code=400, detail="Roll-over value must be between 2 and 19")
+    winning_chance = (21 - roll_over) / 20
+    return round(1 / winning_chance, 2)
 
 # Function to log game results
 def log_game_result(username: str, game_name: str, before_balance: float, after_balance: float, multiplier: float):
@@ -49,7 +56,7 @@ def play_dice(request: DiceGameRequest):
 
     dice_roll = roll_dice()
     win = dice_roll > request.roll_over
-    multiplier = 20 / (20 - request.roll_over) if win else 0
+    multiplier = calculate_multiplier(request.roll_over) if win else 0
     win_amount = request.bet_amount * multiplier
 
     # Assuming you have a function to get the user's current balance
@@ -70,7 +77,7 @@ def play_dice(request: DiceGameRequest):
         "dice_roll": dice_roll,
         "win": win,
         "win_amount": round(win_amount, 2),
-        "multiplier": round(multiplier, 3),
+        "multiplier": round(multiplier, 2),
         "balance": round(after_balance, 2)
     }
 
