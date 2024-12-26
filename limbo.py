@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from jose import jwt, JWTError
 import psycopg2
