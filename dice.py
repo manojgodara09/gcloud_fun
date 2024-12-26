@@ -54,20 +54,23 @@ def play_dice(request: DiceGameRequest):
     if not username:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    dice_roll = roll_dice()
-    win = dice_roll > request.roll_over
-    multiplier = calculate_multiplier(request.roll_over) if win else 0
-    win_amount = request.bet_amount * multiplier
-
     # Assuming you have a function to get the user's current balance
     before_balance = get_user_balance(username)
     if before_balance < request.bet_amount:
         raise HTTPException(status_code=400, detail="Insufficient balance")
 
-    # Calculate the new balance
-    after_balance = before_balance + win_amount if win else before_balance - request.bet_amount
+    # Deduct the bet amount from the balance
+    after_balance = before_balance - request.bet_amount
 
-    # Update the user's balance
+    dice_roll = roll_dice()
+    win = dice_roll > request.roll_over
+    multiplier = calculate_multiplier(request.roll_over) if win else 0
+    win_amount = request.bet_amount * multiplier
+
+    # Calculate the new balance after the game result
+    after_balance += win_amount if win else 0
+
+    # Update the user's balance again with the win amount if applicable
     update_user_balance(username, after_balance)
 
     # Log the game result
