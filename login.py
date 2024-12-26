@@ -64,23 +64,16 @@ def login(request: LoginRequest):
         if not authenticate_user(request.username, request.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
         
-        # Invalidate previous tokens
-        conn = psycopg2.connect(DATABASE_URL)
-        cursor = conn.cursor()
-        cursor.execute("UPDATE user_data SET token=NULL WHERE username=%s", (request.username,))
-        conn.commit()
+        set_user_logged_in(request.username, True)  # Set user as logged in
 
-        # Generate new token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": request.username}, expires_delta=access_token_expires
         )
-
-        # Store new token in the database
-        cursor.execute("UPDATE user_data SET token=%s WHERE username=%s", (access_token, request.username))
-        conn.commit()
-
+        
         # Fetch user balance
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
         cursor.execute("SELECT balance FROM user_data WHERE username=%s", (request.username,))
         user_balance = cursor.fetchone()[0]
         conn.close()
