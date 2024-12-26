@@ -79,13 +79,13 @@ def play_limbo(request: GameRequest):
         new_balance += winnings
 
         # Update user balance in the database
-        cursor.execute("UPDATE user_data SET balance=%s WHERE id=%s", (new_balance, user_id))
+        cursor.execute("UPDATE user_data SET balance=%s WHERE id=%s", (round(new_balance,2), user_id))
 
         # Save game history
         cursor.execute("""
             INSERT INTO user_game_history (user_id, game_name, before_balance, after_balance, multiplier, play_time)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (user_id, "Limbo Game", current_balance, new_balance, crash_point, datetime.utcnow()))
+        """, (user_id, "Limbo Game", round(current_balance,2), round(new_balance,2), crash_point, datetime.utcnow()))
 
         # Commit transaction
         conn.commit()
