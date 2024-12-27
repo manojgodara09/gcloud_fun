@@ -85,7 +85,7 @@ def play_limbo(request: GameRequest):
         cursor.execute("""
             INSERT INTO user_game_history (user_id, game_name, before_balance, after_balance, multiplier, play_time)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (user_id, "Limbo Game", round(current_balance,2), round(new_balance,2), crash_point, datetime.utcnow()))
+        """, (user_id, "Limbo Game", round(current_balance,2), round(new_balance,2), round(crash_point,2), datetime.utcnow()))
 
         # Commit transaction
         conn.commit()
@@ -102,7 +102,7 @@ def play_limbo(request: GameRequest):
 
     # Return response
     return {
-        "multiplier": crash_point,
+        "multiplier": round(crash_point,2),
         "winnings": round(winnings, 2),
         "new_balance": round(new_balance, 2),
     }
