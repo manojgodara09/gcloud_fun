@@ -74,7 +74,7 @@ def play_dice(request: DiceGameRequest):
     update_user_balance(username, round(after_balance,2))
 
     # Log the game result
-    log_game_result(username, "dice", round(before_balance,2), round(after_balance,2), multiplier)
+    log_game_result(username, "Dice Game", round(before_balance,2), round(after_balance,2), multiplier)
 
     return {
         "dice_roll": dice_roll,
