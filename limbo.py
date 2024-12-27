@@ -36,8 +36,8 @@ def generate_float_point():
 
 # Function to calculate the crash point
 def calculate_crash_point():
-    max_payout = 1000000.0
-    house_edge = 0.01
+    max_payout = 1000.0
+    house_edge = 0.2
     float_point = generate_float_point()
     crash_point = max_payout / (float_point * (1 - house_edge))
     return crash_point
