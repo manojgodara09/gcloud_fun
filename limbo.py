@@ -30,18 +30,18 @@ class GameRequest(BaseModel):
 
 
 # Function to calculate the crash point
-def  calculate_crash_point():
+def calculate_crash_point():
     int_point = random.randint(1, 100)
     if int_point <= 50:
-        return random.randint(0, 1)  # 60% chance
+        return random.uniform(0, 1)  # 50% chance
     elif int_point <= 75:
-        return random.randint(1, 2)  # 25% chance
+        return random.uniform(1, 2)  # 25% chance
     elif int_point <= 95:
-        return random.randint(2, 4)  # 10% chance
+        return random.uniform(2, 4)  # 20% chance
     elif int_point <= 99:
-        return random.randint(4, 10)  # 4% chance
+        return random.uniform(4, 10)  # 4% chance
     else:
-        return random.randint(10, 100)  # 1% chance
+        return random.uniform(10, 100)  # 1% chance
 
 # Limbo Game Endpoint
 @router.post("/play/limbo")
