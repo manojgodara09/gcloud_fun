@@ -28,19 +28,20 @@ class GameRequest(BaseModel):
     target_multiplier: float
     token: str  # JWT token for user authentication
 
-# Function to generate random float point
-def generate_float_point():
-    random_bytes = random.getrandbits(64).to_bytes(8, 'big')
-    float_point = int.from_bytes(random_bytes, 'big') / (2**64 - 1)
-    return float_point
 
 # Function to calculate the crash point
-def calculate_crash_point():
-    max_payout = 1000.0
-    house_edge = 0.2
-    float_point = generate_float_point()
-    crash_point = max_payout / (float_point * (1 - house_edge))
-    return crash_point
+def  calculate_crash_point():
+    int_point = random.randint(1, 100)
+    if int_point <= 50:
+        return random.randint(0, 1)  # 60% chance
+    elif int_point <= 75:
+        return random.randint(1, 2)  # 25% chance
+    elif int_point <= 95:
+        return random.randint(2, 4)  # 10% chance
+    elif int_point <= 99:
+        return random.randint(4, 10)  # 4% chance
+    else:
+        return random.randint(10, 100)  # 1% chance
 
 # Limbo Game Endpoint
 @router.post("/play/limbo")
