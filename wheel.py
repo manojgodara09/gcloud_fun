@@ -44,13 +44,13 @@ def generate_wheel(risk: str):
     return segment_count, multiplier, winning_index
 
 # Function to log game results
-def log_game_result(username: str, game_name: str, before_balance: float, after_balance: float, multiplier: float, win: bool):
+def log_game_result(username: str, game_name: str, before_balance: float, after_balance: float, multiplier: float):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO user_game_history (user_id, game_name, before_balance, after_balance, multiplier, win, play_time)
-        VALUES ((SELECT id FROM user_data WHERE username=%s), %s, %s, %s, %s, %s, %s)
-    """, (username, game_name, before_balance, after_balance, multiplier, win, datetime.utcnow()))
+        INSERT INTO user_game_history (user_id, game_name, before_balance, after_balance, multiplier, play_time)
+        VALUES ((SELECT id FROM user_data WHERE username=%s), %s, %s, %s, %s, %s)
+    """, (username, game_name, round(before_balance, 2), round(after_balance, 2), round(multiplier, 2), datetime.utcnow()))
     conn.commit()
     conn.close()
 
@@ -77,7 +77,7 @@ def play_wheel(request: WheelGameRequest):
     update_user_balance(username, after_balance)
 
     # Log the game result
-    log_game_result(username, "wheel", before_balance, after_balance, multiplier if win else 0, win)
+    log_game_result(username, "Wheel Game", before_balance, after_balance, multiplier if win else 0)
 
     return {
         "winning_index": winning_index,
