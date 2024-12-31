@@ -2,7 +2,7 @@ import random
 import psycopg2
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from jose import jwt
+from jose import jwt, JWTError
 from datetime import datetime
 
 DATABASE_URL = "postgresql://fun_game_user:xOuZ6LLpXDxBGg9WnSRalfc1H1dRAqj6@dpg-ctgsn00gph6c73ckd45g-a.singapore-postgres.render.com/fun_game"
@@ -11,14 +11,29 @@ ALGORITHM = "HS256"
 
 router = APIRouter()
 
-# JWT Verification
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        # Check if token matches the one stored in the database
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        cursor.execute("SELECT token FROM user_data WHERE username=%s", (username,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result or result[0] != token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        print(f"Verified username: {username}")  # Log the username for debugging
         return username
-    except jwt.JWTError:
+    except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 # Request Model
 class DiceGameRequest(BaseModel):

@@ -17,10 +17,25 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        # Check if token matches the one stored in the database
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        cursor.execute("SELECT token FROM user_data WHERE username=%s", (username,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result or result[0] != token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
         print(f"Verified username: {username}")  # Log the username for debugging
         return username
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 # Request Model
 class GameRequest(BaseModel):

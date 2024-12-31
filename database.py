@@ -14,7 +14,8 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             balance FLOAT NOT NULL,
-            logged_in BOOLEAN DEFAULT FALSE
+            add_bal FLOAT NOT NULL,
+            token TEXT
         )
     """)
     

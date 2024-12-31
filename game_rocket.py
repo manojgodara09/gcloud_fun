@@ -5,12 +5,10 @@ import psycopg2
 import random
 from datetime import datetime
 
-
 # Configuration
 DATABASE_URL = "postgresql://fun_game_user:xOuZ6LLpXDxBGg9WnSRalfc1H1dRAqj6@dpg-ctgsn00gph6c73ckd45g-a.singapore-postgres.render.com/fun_game"
-SECRET_KEY="d6A9bE3cAf2D6E5d8eFb6d8A6Bc9D1d5F7A2"
-ALGORITHM="HS256"
-
+SECRET_KEY = "d6A9bE3cAf2D6E5d8eFb6d8A6Bc9D1d5F7A2"
+ALGORITHM = "HS256"
 
 router = APIRouter()
 
@@ -19,10 +17,25 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        # Check if token matches the one stored in the database
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        cursor.execute("SELECT token FROM user_data WHERE username=%s", (username,))
+        result = cursor.fetchone()
+        conn.close()
+
+        if not result or result[0] != token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
         print(f"Verified username: {username}")  # Log the username for debugging
         return username
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 # Function to calculate multipliers without house edge
 def calculate_multipliers():
@@ -57,7 +70,6 @@ class GameRequest(BaseModel):
     token: str  # JWT token for user authentication
 
 # Rocket Game Endpoint
-# Game Endpoint
 @router.post("/play/rocket")
 def play_rocket(request: GameRequest):
     # Verify JWT Token
@@ -92,13 +104,13 @@ def play_rocket(request: GameRequest):
         new_balance += winnings
 
         # Update user balance in the database
-        cursor.execute("UPDATE user_data SET balance=%s WHERE id=%s", (round(new_balance,2), user_id))
+        cursor.execute("UPDATE user_data SET balance=%s WHERE id=%s", (round(new_balance, 2), user_id))
 
         # Save game history
         cursor.execute("""
             INSERT INTO user_game_history (user_id, game_name, before_balance, after_balance, multiplier, play_time)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (user_id, "Rocket Game", round(current_balance,2), round(new_balance,2), multiplier, datetime.utcnow()))
+        """, (user_id, "Rocket Game", round(current_balance, 2), round(new_balance, 2), multiplier, datetime.utcnow()))
 
         # Commit transaction
         conn.commit()

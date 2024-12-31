@@ -46,6 +46,16 @@ def create_access_token(data: dict, expires_delta: timedelta):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# Function to set user logged in status and store token
+def set_user_logged_in(username: str, token: str):
+    try:
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE user_data SET token=%s WHERE username=%s", (token, username))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # Login Endpoint
 @router.post("/login", response_model=TokenResponse)
@@ -53,12 +63,14 @@ def login(request: LoginRequest):
     try:
         if not authenticate_user(request.username, request.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
-
+        
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": request.username}, expires_delta=access_token_expires
         )
         
+        set_user_logged_in(request.username, access_token)  # Set user as logged in and store new token
+
         # Fetch user balance
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
