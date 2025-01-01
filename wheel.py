@@ -48,10 +48,10 @@ def generate_wheel(risk: str):
         multiplier = 10
     elif risk == "medium":
         segment_count = 20
-        multiplier = 5
+        multiplier = 20
     elif risk == "high":
         segment_count = 30
-        multiplier = 3
+        multiplier = 30
     else:
         raise HTTPException(status_code=400, detail="Invalid risk level")
     
