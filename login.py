@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import psycopg2
 
-DATABASE_URL = "postgresql://fun_game_user:xOuZ6LLpXDxBGg9WnSRalfc1H1dRAqj6@dpg-ctgsn00gph6c73ckd45g-a.singapore-postgres.render.com/fun_game"
+DATABASE_URL = "postgresql://postgres:Ramram#123@34.131.182.225:5432/Testdata"
 SECRET_KEY = "d6A9bE3cAf2D6E5d8eFb6d8A6Bc9D1d5F7A2"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
