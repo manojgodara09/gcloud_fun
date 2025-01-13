@@ -1,7 +1,7 @@
 import psycopg2
 
 # Update the DATABASE_URL with Google Cloud PostgreSQL connection details
-DATABASE_URL = "postgresql://fun_game_user:xOuZ6LLpXDxBGg9WnSRalfc1H1dRAqj6@dpg-ctgsn00gph6c73ckd45g-a.singapore-postgres.render.com/fun_game"
+DATABASE_URL = "postgresql://postgres:Ramram#123@34.131.182.225:5432/Testdata"
 
 def init_db():
     conn = psycopg2.connect(DATABASE_URL)
