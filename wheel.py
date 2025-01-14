@@ -46,16 +46,26 @@ def generate_wheel(risk: str):
     if risk == "low":
         segment_count = 10
         multiplier = 10
+        win_probability = 0.05  # 5% chance
     elif risk == "medium":
         segment_count = 20
         multiplier = 20
+        win_probability = 0.03  # 3% chance
     elif risk == "high":
         segment_count = 30
         multiplier = 30
+        win_probability = 0.01  # 1% chance
     else:
         raise HTTPException(status_code=400, detail="Invalid risk level")
     
-    winning_index = random.randint(0, segment_count - 1)
+    # Use weighted probability
+    if random.random() > win_probability:
+        # Loss - select any non-zero index
+        winning_index = random.randint(1, segment_count - 1)
+    else:
+        # Win - select zero
+        winning_index = 0
+        
     return segment_count, multiplier, winning_index
 
 # Function to log game results
